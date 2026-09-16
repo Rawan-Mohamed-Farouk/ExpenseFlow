@@ -1,13 +1,7 @@
 puts "Seeding ExpenseFlow database..."
 
-# Reset existing data
-Notification.destroy_all
-ExpenseHistory.destroy_all
-Expense.destroy_all
-User.update_all(team_id: nil)
-Team.destroy_all
-User.destroy_all
-Category.destroy_all
+# Reset existing data cleanly
+ActiveRecord::Base.connection.execute("TRUNCATE TABLE notifications, expense_histories, expenses, users, teams, categories RESTART IDENTITY CASCADE;")
 
 # Create Categories
 puts "Creating categories..."
