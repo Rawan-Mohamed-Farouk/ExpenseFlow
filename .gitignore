@@ -1,0 +1,33 @@
+# Node / Frontend
+node_modules/
+dist/
+dist-ssr/
+*.local
+.env
+.env.*.local
+frontend/node_modules/
+frontend/dist/
+frontend/.oxlintrc.json
+frontend/tsconfig.app.tsbuildinfo
+
+# Ruby / Rails / Backend
+backend/log/*
+!backend/log/.keep
+backend/tmp/*
+!backend/tmp/.keep
+backend/tmp/cache/*
+backend/tmp/pids/*
+backend/tmp/sockets/*
+backend/tmp/storage/*
+backend/storage/*
+!backend/storage/.keep
+backend/public/assets
+backend/.bundle/
+backend/vendor/bundle
+
+# OS / IDE
+.DS_Store
+*.swp
+*~
+.idea/
+.vscode/
