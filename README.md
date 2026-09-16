@@ -4,7 +4,7 @@ ExpenseFlow is a multi-role team expense reimbursement platform built with **Rub
 
 ---
 
-## 🚀 Quick Start (Single Docker Command)
+## Quick Start 
 
 Start the entire application (PostgreSQL, Rails API with database setup & seeds, and React Vite app) with a single command:
 
