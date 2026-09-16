@@ -1,7 +1,10 @@
 puts "Seeding ExpenseFlow database..."
 
-# Reset existing data cleanly
-ActiveRecord::Base.connection.execute("TRUNCATE TABLE notifications, expense_histories, expenses, users, teams, categories RESTART IDENTITY CASCADE;")
+begin
+  ActiveRecord::Base.connection.execute("TRUNCATE TABLE notifications, expense_histories, expenses, users, teams, categories RESTART IDENTITY CASCADE;")
+rescue => e
+  puts "Warning during truncate: #{e.message}"
+end
 
 # Create Categories
 puts "Creating categories..."
