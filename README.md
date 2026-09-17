@@ -34,7 +34,7 @@ The seed script automatically populates users across every role and expenses acr
 | **James Finance** | `admin` | `admin2@expenseflow.com` | Second Finance Admin. Reviews Sarah's expenses (peer review) and manages reimbursements. |
 | **Dave Inactive**| `employee` | `dave.inactive@expenseflow.com` | **Deactivated account**. Demonstrates immediate login rejection and access blocking. |
 
-> 💡 *Tip: The UI features a **"Switch Demo User"** quick-picker in the header for effortless switching between roles during review!*
+> *Tip: The UI features a **"Switch Demo User"** quick-picker in the header for effortless switching between roles during review!*
 
 ---
 
@@ -130,7 +130,7 @@ npm run dev
 
 ---
 
-## 💡 Assumptions & Future Improvements
+## Assumptions & Future Improvements
 
 ### Assumptions Made:
 1. **Currencies**: All transactions are in a single company currency ($ USD) per section 3.4.
