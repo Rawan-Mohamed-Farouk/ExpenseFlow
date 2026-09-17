@@ -19,7 +19,7 @@ Once running:
 
 ---
 
-## 👥 Demo Credentials & Personas
+## Demo Credentials & Personas
 
 The seed script automatically populates users across every role and expenses across all workflow states. Password for all demo accounts is **`password123`**.
 
@@ -38,7 +38,7 @@ The seed script automatically populates users across every role and expenses acr
 
 ---
 
-## 🔑 Authentication Approach
+## Authentication Approach
 
 As specified in section 3.1:
 1. **Custom Implementation**: Implemented from scratch using Rails `has_secure_password` (bcrypt) and stateless **JSON Web Tokens (JWT)** signed with HMAC-SHA256. Devise and external identity providers are not used.
@@ -53,7 +53,7 @@ As specified in section 3.1:
 
 ---
 
-## 💼 Core Workflow & Business Logic
+## Core Workflow & Business Logic
 
 ### State Transitions
 ```
@@ -86,7 +86,7 @@ As specified in section 3.1:
 
 ---
 
-## 📊 Reports & Bonus Features
+## Reports & Bonus Features
 
 1. **Monthly Category Financial Intelligence**:
    - Dynamic aggregation of approved and reimbursed expenses grouped by month (YYYY-MM) and category.
@@ -98,7 +98,7 @@ As specified in section 3.1:
 
 ---
 
-## 🛠️ Local Development (Without Docker)
+## Local Development (Without Docker)
 
 ### Backend Setup (Rails 8 API)
 ```bash
@@ -123,21 +123,6 @@ npm run dev
 
 ---
 
-## 📚 Documentation
+## Documentation
 - **Entity Relationship Diagram (ERD)**: [docs/ERD.md](file:///Users/User/.gemini/antigravity-ide/scratch/expenseflow/docs/ERD.md)
 - **REST API Specification**: [docs/API.md](file:///Users/User/.gemini/antigravity-ide/scratch/expenseflow/docs/API.md)
-
----
-
-## 💡 Assumptions & Future Improvements
-
-### Assumptions Made:
-1. **Currencies**: All transactions are in a single company currency ($ USD) per section 3.4.
-2. **Manager Reassignment**: If an employee has no manager assigned (unassigned team), submitted expenses route to Admins for review.
-3. **Date Restrictions**: Expenses must have a spent date within the past 90 days and cannot be in the future.
-
-### With More Time:
-- Multi-currency support with live exchange rates.
-- Receipt OCR scanning & file attachment uploads (via ActiveStorage & S3).
-- Configurable multi-level approval workflows (e.g. Manager approval + VP Finance approval for claims > $5,000).
-- Push notifications / WebSockets (ActionCable) for live notification delivery.
