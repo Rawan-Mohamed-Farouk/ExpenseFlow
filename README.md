@@ -19,7 +19,7 @@ Once running:
 
 ---
 
-## 👥 Demo Credentials & Personas
+## Demo Credentials & Personas
 
 The seed script automatically populates users across every role and expenses across all workflow states. Password for all demo accounts is **`password123`**.
 
@@ -38,7 +38,7 @@ The seed script automatically populates users across every role and expenses acr
 
 ---
 
-## 🔑 Authentication Approach
+## Authentication Approach
 
 As specified in section 3.1:
 1. **Custom Implementation**: Implemented from scratch using Rails `has_secure_password` (bcrypt) and stateless **JSON Web Tokens (JWT)** signed with HMAC-SHA256. Devise and external identity providers are not used.
@@ -54,7 +54,7 @@ As specified in section 3.1:
 
 ---
 
-## 💼 Core Workflow & Business Logic
+## Core Workflow & Business Logic
 
 ### State Transitions
 ```
@@ -87,7 +87,7 @@ As specified in section 3.1:
 
 ---
 
-## 📊 Reports & Bonus Features
+## Reports & Bonus Features
 
 1. **Monthly Category Financial Intelligence**:
    - Dynamic aggregation of approved and reimbursed expenses grouped by month (YYYY-MM) and category.
@@ -99,7 +99,7 @@ As specified in section 3.1:
 
 ---
 
-## 🛠️ Local Development (Without Docker)
+## Local Development (Without Docker)
 
 ### Backend Setup (Rails 8 API)
 ```bash
@@ -124,7 +124,7 @@ npm run dev
 
 ---
 
-## 📚 Documentation
+## Documentation
 - **Entity Relationship Diagram (ERD)**: [docs/ERD.md](docs/ERD.md)
 - **REST API Specification**: [docs/API.md](docs/API.md)
 
