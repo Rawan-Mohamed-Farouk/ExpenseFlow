@@ -43,8 +43,8 @@ class User < ApplicationRecord
       # Manager can review submitted expenses of their managed team members
       managed_team.present? && expense.user.team_id == managed_team.id && expense.user.role == "employee"
     elsif admin?
-      # Admin reviews expenses of managers and other admins, or any employee not in a managed team
-      expense.user.role.in?(%w[manager admin]) || expense.user.team&.manager_id.nil? || expense.user.team&.manager_id == expense.user_id
+      # Admin reviews manager and admin expenses, but never their own.
+      expense.user.role.in?(%w[manager admin])
     else
       false
     end
@@ -64,7 +64,7 @@ class User < ApplicationRecord
     elsif admin?
       Expense.submitted
              .joins(:user)
-             .where("users.role IN ('manager', 'admin') OR users.team_id IS NULL OR users.team_id NOT IN (SELECT id FROM teams)")
+             .where(users: { role: %w[manager admin] })
              .where.not(user_id: id)
     else
       Expense.none

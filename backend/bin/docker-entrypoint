@@ -16,7 +16,7 @@ echo "Setting up database..."
 bundle exec rails db:prepare || bundle exec rails db:create db:migrate
 
 echo "Seeding database with demo data..."
-bundle exec rails db:seed || true
+bundle exec rails db:seed
 
 echo "Starting Rails API server..."
 exec "$@"

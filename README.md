@@ -43,9 +43,10 @@ The seed script automatically populates users across every role and expenses acr
 As specified in section 3.1:
 1. **Custom Implementation**: Implemented from scratch using Rails `has_secure_password` (bcrypt) and stateless **JSON Web Tokens (JWT)** signed with HMAC-SHA256. Devise and external identity providers are not used.
 2. **Session Security & Immediate Deactivation Enforcement**:
-   - Each issued token encodes the user ID and role with a 24-hour expiration.
+   - Each issued token encodes the user ID, role, unique token ID, and a 24-hour expiration.
    - On every authenticated API request, the `ApplicationController` decodes the token and verifies that the user exists and **`user.is_active? == true`**.
    - If an administrator deactivates a user, their access is revoked **immediately** on the very next request (returns `401 Unauthorized`).
+   - Logout stores the token ID in a server-side revocation table, so the logged-out token is rejected immediately.
 3. **Required Endpoints**:
    - `POST /api/v1/auth/login`: Verifies credentials and returns `{ token, user }`.
    - `DELETE /api/v1/auth/logout`: Invalidates client session.
@@ -124,8 +125,8 @@ npm run dev
 ---
 
 ## 📚 Documentation
-- **Entity Relationship Diagram (ERD)**: [docs/ERD.md](file:///Users/User/.gemini/antigravity-ide/scratch/expenseflow/docs/ERD.md)
-- **REST API Specification**: [docs/API.md](file:///Users/User/.gemini/antigravity-ide/scratch/expenseflow/docs/API.md)
+- **Entity Relationship Diagram (ERD)**: [docs/ERD.md](docs/ERD.md)
+- **REST API Specification**: [docs/API.md](docs/API.md)
 
 ---
 
@@ -133,8 +134,9 @@ npm run dev
 
 ### Assumptions Made:
 1. **Currencies**: All transactions are in a single company currency ($ USD) per section 3.4.
-2. **Manager Reassignment**: If an employee has no manager assigned (unassigned team), submitted expenses route to Admins for review.
+2. **Team Assignment**: Employee expenses require a team with a manager for manager review. Unassigned employees can create expenses, but their submitted expenses are not placed in the manager/admin review queue until assigned to a team.
 3. **Date Restrictions**: Expenses must have a spent date within the past 90 days and cannot be in the future.
+4. **Inactive Categories**: Existing expenses remain valid and visible if their category is later deactivated; inactive categories cannot be selected for new drafts or submissions.
 
 ### With More Time:
 - Multi-currency support with live exchange rates.

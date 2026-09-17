@@ -39,8 +39,15 @@ RSpec.describe Expense, type: :model do
 
     it "rejects spent_date more than 90 days in the past" do
       exp_old = Expense.new(user: employee, category: category_meals, title: "Old", amount: 50, spent_date: Date.current - 95.days)
+      exp_old.submitted_at = Time.current
       expect(exp_old).not_to be_valid
       expect(exp_old.errors[:spent_date]).to include("cannot be more than 90 days before submission date")
+    end
+
+    it "allows an old draft until submission" do
+      old_draft = Expense.new(user: employee, category: category_meals, title: "Old draft", amount: 50,
+                              spent_date: Date.current - 95.days, status: "draft")
+      expect(old_draft).to be_valid
     end
 
     it "rejects inactive category on creation" do

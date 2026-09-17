@@ -17,7 +17,7 @@ module Api
       def approve
         comment = params[:comment]
         begin
-          @expense.approve!(current_user, comment)
+          ExpenseService::Review.call(@expense, current_user, :approve, comment)
           render json: { expense: serialize_expense(@expense, detailed: true), message: "Expense approved successfully." }, status: :ok
         rescue StandardError => e
           render json: { error: e.message }, status: :unprocessable_entity
@@ -32,7 +32,7 @@ module Api
         end
 
         begin
-          @expense.reject!(current_user, comment)
+          ExpenseService::Review.call(@expense, current_user, :reject, comment)
           render json: { expense: serialize_expense(@expense, detailed: true), message: "Expense rejected." }, status: :ok
         rescue StandardError => e
           render json: { error: e.message }, status: :unprocessable_entity

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_16_130500) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_17_180500) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -22,6 +22,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_16_130500) do
     t.datetime "updated_at", null: false
     t.index "lower((name)::text)", name: "index_categories_on_lower_name", unique: true
     t.index ["is_active"], name: "index_categories_on_is_active"
+    t.check_constraint "auto_approve_limit >= 0::numeric", name: "categories_auto_approve_limit_nonnegative"
   end
 
   create_table "expense_histories", force: :cascade do |t|
@@ -56,6 +57,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_16_130500) do
     t.index ["status", "created_at"], name: "index_expenses_on_status_and_created_at"
     t.index ["status"], name: "index_expenses_on_status"
     t.index ["user_id"], name: "index_expenses_on_user_id"
+    t.check_constraint "amount > 0::numeric AND amount <= 100000::numeric", name: "expenses_amount_valid"
+    t.check_constraint "status::text = ANY (ARRAY['draft'::character varying, 'submitted'::character varying, 'approved'::character varying, 'rejected'::character varying, 'reimbursed'::character varying]::text[])", name: "expenses_status_valid"
   end
 
   create_table "notifications", force: :cascade do |t|
@@ -68,6 +71,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_16_130500) do
     t.index ["user_id", "created_at"], name: "index_notifications_on_user_id_and_created_at"
     t.index ["user_id", "is_read"], name: "index_notifications_on_user_id_and_is_read"
     t.index ["user_id"], name: "index_notifications_on_user_id"
+  end
+
+  create_table "revoked_tokens", force: :cascade do |t|
+    t.string "jti", null: false
+    t.datetime "revoked_at", null: false
+    t.index ["jti"], name: "index_revoked_tokens_on_jti", unique: true
+    t.index ["revoked_at"], name: "index_revoked_tokens_on_revoked_at"
   end
 
   create_table "teams", force: :cascade do |t|
@@ -91,6 +101,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_16_130500) do
     t.index "lower((email)::text)", name: "index_users_on_lower_email", unique: true
     t.index ["role"], name: "index_users_on_role"
     t.index ["team_id"], name: "index_users_on_team_id"
+    t.check_constraint "role::text = ANY (ARRAY['employee'::character varying, 'manager'::character varying, 'admin'::character varying]::text[])", name: "users_role_valid"
   end
 
   add_foreign_key "expense_histories", "expenses", on_delete: :cascade

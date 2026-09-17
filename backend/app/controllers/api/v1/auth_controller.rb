@@ -25,7 +25,8 @@ module Api
 
       # DELETE /api/v1/auth/logout
       def logout
-        # Stateless JWT acknowledgment
+        token = request.headers["Authorization"].to_s.split(" ").last
+        JsonWebToken.revoke(token) if token.present?
         render json: { message: "Successfully logged out." }, status: :ok
       end
 

@@ -41,9 +41,13 @@ RSpec.describe "Auth API", type: :request do
   end
 
   describe "DELETE /api/v1/auth/logout" do
-    it "returns success message" do
-      delete "/api/v1/auth/logout", headers: auth_headers(user)
+    it "returns success message and revokes the token" do
+      headers = auth_headers(user)
+      delete "/api/v1/auth/logout", headers: headers
       expect(response).to have_http_status(:ok)
+
+      get "/api/v1/me", headers: headers
+      expect(response).to have_http_status(:unauthorized)
     end
   end
 end

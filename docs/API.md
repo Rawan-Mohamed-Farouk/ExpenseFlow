@@ -313,3 +313,40 @@ All responses are in JSON format. Authenticated endpoints require an `Authorizat
 ### 7.3 Mark All Notifications Read
 - **Endpoint**: `POST /api/v1/notifications/mark_all_read`
 - **Access**: Authenticated
+
+## 8. Administration
+
+All administration endpoints require an authenticated, active user with the `admin` role. Non-admin users receive `403 Forbidden`.
+
+### 8.1 Users
+- `GET /api/v1/admin/users`
+- `GET /api/v1/admin/users/:id`
+- `POST /api/v1/admin/users`
+- `PATCH /api/v1/admin/users/:id`
+- `PATCH /api/v1/admin/users/:id/deactivate`
+
+User create/update bodies use a `user` object with `name`, `email`, `password` (create or password change), `role`, `team_id`, and `is_active`. Deactivation uses `{ "is_active": false }`; users are never deleted.
+
+### 8.2 Teams
+- `GET /api/v1/admin/teams`
+- `GET /api/v1/admin/teams/:id`
+- `POST /api/v1/admin/teams`
+- `PATCH /api/v1/admin/teams/:id`
+
+Team bodies use `{ "team": { "name": "Engineering", "manager_id": 3 } }`. The manager must be a user with the `manager` role, and names are case-insensitively unique.
+
+### 8.3 Categories
+- `GET /api/v1/admin/categories`
+- `GET /api/v1/admin/categories/:id`
+- `POST /api/v1/admin/categories`
+- `PATCH /api/v1/admin/categories/:id`
+
+Category bodies use `{ "category": { "name": "Travel", "auto_approve_limit": 150, "is_active": true } }`. Names are case-insensitively unique and limits cannot be negative.
+
+## 9. Errors and authorization
+
+Authenticated endpoints use `401 Unauthorized` for missing, expired, invalid, revoked, or inactive-user tokens. Valid authentication without permission returns `403 Forbidden`. Missing resources return `404 Not Found`; validation and workflow failures return `422 Unprocessable Entity` with either an `error` message or an `errors` array.
+
+Expense workflow actions are authorized on the backend. Managers can review only submitted employee expenses from their managed team. Admins can review submitted manager and admin expenses, but never their own. Every transition is performed atomically with its history and owner notification; review and reimbursement actions lock the expense row to prevent duplicate concurrent transitions.
+
+Expense listing supports `status`, `category_id`, `start_date`, `end_date`, `sort_by`, `sort_order`, `page`, and `per_page`. Responses include `meta.current_page`, `meta.total_pages`, `meta.total_count`, and `meta.per_page`.

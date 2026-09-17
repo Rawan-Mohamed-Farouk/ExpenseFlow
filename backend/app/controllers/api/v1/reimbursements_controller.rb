@@ -21,7 +21,7 @@ module Api
         end
 
         begin
-          @expense.reimburse!(current_user, payment_reference)
+          ExpenseService::Reimburse.call(@expense, current_user, payment_reference)
           render json: { expense: serialize_expense(@expense, detailed: true), message: "Expense successfully marked as reimbursed." }, status: :ok
         rescue StandardError => e
           render json: { error: e.message }, status: :unprocessable_entity

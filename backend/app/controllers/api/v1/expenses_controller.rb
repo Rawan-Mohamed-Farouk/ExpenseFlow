@@ -125,7 +125,7 @@ module Api
         end
 
         begin
-          @expense.submit!(current_user)
+          ExpenseService::Submit.call(@expense, current_user)
           render json: { expense: serialize_expense(@expense, detailed: true), message: "Expense submitted successfully." }, status: :ok
         rescue ActiveRecord::RecordInvalid => e
           render json: { errors: @expense.errors.full_messages }, status: :unprocessable_entity
@@ -145,7 +145,7 @@ module Api
         end
 
         begin
-          @expense.reopen!(current_user)
+          ExpenseService::Reopen.call(@expense, current_user)
           render json: { expense: serialize_expense(@expense, detailed: true), message: "Expense reopened to draft." }, status: :ok
         rescue StandardError => e
           render json: { error: e.message }, status: :unprocessable_entity

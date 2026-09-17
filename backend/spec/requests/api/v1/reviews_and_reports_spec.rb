@@ -5,7 +5,11 @@ RSpec.describe "Reviews and Reports API", type: :request do
   let(:manager) { User.create!(name: "Mgr Mark", email: "mark@test.com", password: "password", role: "manager") }
   let(:team) { Team.create!(name: "Product Team", manager: manager) }
   let(:employee) { User.create!(name: "Emp Emma", email: "emma@test.com", password: "password", role: "employee", team: team) }
+  let(:other_manager) { User.create!(name: "Other Manager", email: "other-manager@test.com", password: "password", role: "manager") }
+  let(:other_team) { Team.create!(name: "Other Team", manager: other_manager) }
+  let(:other_employee) { User.create!(name: "Other Employee", email: "other-employee@test.com", password: "password", role: "employee", team: other_team) }
   let(:admin) { User.create!(name: "Admin Amy", email: "amy@test.com", password: "password", role: "admin") }
+  let(:second_admin) { User.create!(name: "Admin Andy", email: "andy@test.com", password: "password", role: "admin") }
 
   describe "Review Queue & Review Actions" do
     let!(:submitted_expense) do
@@ -95,6 +99,38 @@ RSpec.describe "Reviews and Reports API", type: :request do
     it "forbids non-admin from accessing reports" do
       get "/api/v1/reports", headers: auth_headers(employee)
       expect(response).to have_http_status(:forbidden)
+    end
+  end
+
+  describe "reviewer authorization matrix" do
+    it "does not allow a manager to review another team's employee" do
+      expense = Expense.create!(user: other_employee, category: category, title: "Other team expense", amount: 250,
+                                spent_date: Date.current - 1.day, status: "submitted", submitted_at: Time.current)
+
+      post "/api/v1/expenses/#{expense.id}/approve", headers: auth_headers(manager)
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+
+    it "requires an admin for manager expenses" do
+      expense = Expense.create!(user: manager, category: category, title: "Manager expense", amount: 250,
+                                spent_date: Date.current - 1.day, status: "submitted", submitted_at: Time.current)
+
+      post "/api/v1/expenses/#{expense.id}/approve", headers: auth_headers(manager)
+      expect(response).to have_http_status(:unprocessable_entity)
+
+      post "/api/v1/expenses/#{expense.id}/approve", headers: auth_headers(admin)
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "requires a different admin for admin expenses" do
+      expense = Expense.create!(user: admin, category: category, title: "Finance expense", amount: 250,
+                                spent_date: Date.current - 1.day, status: "submitted", submitted_at: Time.current)
+
+      post "/api/v1/expenses/#{expense.id}/approve", headers: auth_headers(admin)
+      expect(response).to have_http_status(:unprocessable_entity)
+
+      post "/api/v1/expenses/#{expense.id}/approve", headers: auth_headers(second_admin)
+      expect(response).to have_http_status(:ok)
     end
   end
 end
