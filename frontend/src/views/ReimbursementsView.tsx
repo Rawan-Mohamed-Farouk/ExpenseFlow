@@ -17,11 +17,13 @@ import {
 interface ReimbursementsViewProps {
   onOpenDetail: (id: number) => void;
   onOpenReimburse: (expense: Expense) => void;
+  refreshKey?: number;
 }
 
 export const ReimbursementsView: React.FC<ReimbursementsViewProps> = ({
   onOpenDetail,
   onOpenReimburse,
+  refreshKey = 0,
 }) => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,7 +42,7 @@ export const ReimbursementsView: React.FC<ReimbursementsViewProps> = ({
 
   useEffect(() => {
     fetchReimbursements();
-  }, []);
+  }, [refreshKey]);
 
   const totalPayout = expenses.reduce((acc, e) => acc + e.amount, 0);
 

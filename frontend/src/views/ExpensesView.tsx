@@ -6,9 +6,6 @@ import { StatusBadge } from '../components/StatusBadge';
 import {
   Plus,
   Search,
-  Filter,
-  ArrowUpDown,
-  Calendar,
   DollarSign,
   Receipt,
   FileCheck,
@@ -24,12 +21,14 @@ interface ExpensesViewProps {
   onOpenCreate: () => void;
   onOpenDetail: (id: number) => void;
   categories: Category[];
+  refreshKey?: number;
 }
 
 export const ExpensesView: React.FC<ExpensesViewProps> = ({
   onOpenCreate,
   onOpenDetail,
   categories,
+  refreshKey = 0,
 }) => {
   const { user } = useAuth();
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -45,10 +44,6 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<string>('');
   const [categoryId, setCategoryId] = useState<string>('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [sortBy, setSortBy] = useState<'spent_date' | 'amount' | 'created_at'>('created_at');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [scope, setScope] = useState<'my' | 'all'>('my');
   const [page, setPage] = useState(1);
 
@@ -59,10 +54,6 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
         search: search || undefined,
         status: status || undefined,
         category_id: categoryId || undefined,
-        start_date: startDate || undefined,
-        end_date: endDate || undefined,
-        sort_by: sortBy,
-        sort_order: sortOrder,
         scope: scope,
         page,
         per_page: 10,
@@ -78,7 +69,7 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
 
   useEffect(() => {
     fetchExpenses();
-  }, [search, status, categoryId, startDate, endDate, sortBy, sortOrder, scope, page]);
+  }, [search, status, categoryId, scope, page, refreshKey]);
 
   // Reset pagination when filter changes
   const handleFilterChange = (setter: (val: any) => void, value: any) => {
@@ -259,49 +250,6 @@ export const ExpensesView: React.FC<ExpensesViewProps> = ({
           ))}
         </select>
 
-        {/* Date Range */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <input
-            type="date"
-            className="input-field"
-            style={{ width: 'auto', padding: '8px 10px', fontSize: '0.8125rem' }}
-            value={startDate}
-            onChange={(e) => handleFilterChange(setStartDate, e.target.value)}
-            title="Start date"
-          />
-          <span style={{ color: 'var(--text-muted)', fontSize: '0.8125rem' }}>to</span>
-          <input
-            type="date"
-            className="input-field"
-            style={{ width: 'auto', padding: '8px 10px', fontSize: '0.8125rem' }}
-            value={endDate}
-            onChange={(e) => handleFilterChange(setEndDate, e.target.value)}
-            title="End date"
-          />
-        </div>
-
-        {/* Sort */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <select
-            className="select-field"
-            style={{ width: 'auto', minWidth: '130px', fontSize: '0.8125rem' }}
-            value={sortBy}
-            onChange={(e) => handleFilterChange(setSortBy, e.target.value as any)}
-          >
-            <option value="created_at">Created Date</option>
-            <option value="spent_date">Spent Date</option>
-            <option value="amount">Amount</option>
-          </select>
-          <button
-            type="button"
-            className="btn btn-secondary btn-sm"
-            onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-            title={`Sort ${sortOrder === 'asc' ? 'Ascending' : 'Descending'}`}
-          >
-            <ArrowUpDown size={14} />
-            {sortOrder.toUpperCase()}
-          </button>
-        </div>
       </div>
 
       {/* Expenses Table */}

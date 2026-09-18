@@ -24,6 +24,9 @@ const MainApp: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [reviewCount, setReviewCount] = useState(0);
   const [reimbursementCount, setReimbursementCount] = useState(0);
+  const [expensesRefreshKey, setExpensesRefreshKey] = useState(0);
+  const [reviewQueueRefreshKey, setReviewQueueRefreshKey] = useState(0);
+  const [reimbursementsRefreshKey, setReimbursementsRefreshKey] = useState(0);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   // Modal states
@@ -112,6 +115,7 @@ const MainApp: React.FC = () => {
     try {
       await api.approveExpense(approveExpense.id, comment);
       showToast(`Expense "${approveExpense.title}" approved successfully!`);
+      setReviewQueueRefreshKey((key) => key + 1);
       fetchInitialData();
     } catch (err: any) {
       showToast(err.message || 'Failed to approve expense', 'error');
@@ -123,6 +127,7 @@ const MainApp: React.FC = () => {
     try {
       await api.rejectExpense(rejectExpense.id, comment);
       showToast(`Expense "${rejectExpense.title}" was rejected.`);
+      setReviewQueueRefreshKey((key) => key + 1);
       fetchInitialData();
     } catch (err: any) {
       showToast(err.message || 'Failed to reject expense', 'error');
@@ -134,6 +139,7 @@ const MainApp: React.FC = () => {
     try {
       await api.reimburseExpense(reimburseExpense.id, paymentRef);
       showToast(`Expense "${reimburseExpense.title}" marked as reimbursed.`);
+      setReimbursementsRefreshKey((key) => key + 1);
       fetchInitialData();
     } catch (err: any) {
       showToast(err.message || 'Failed to reimburse expense', 'error');
@@ -200,6 +206,7 @@ const MainApp: React.FC = () => {
             onOpenCreate={handleOpenCreate}
             onOpenDetail={handleOpenDetail}
             categories={categories}
+            refreshKey={expensesRefreshKey}
           />
         )}
 
@@ -208,6 +215,7 @@ const MainApp: React.FC = () => {
             onOpenDetail={handleOpenDetail}
             onOpenApprove={(exp) => setApproveExpense(exp)}
             onOpenReject={(exp) => setRejectExpense(exp)}
+            refreshKey={reviewQueueRefreshKey}
           />
         )}
 
@@ -215,6 +223,7 @@ const MainApp: React.FC = () => {
           <ReimbursementsView
             onOpenDetail={handleOpenDetail}
             onOpenReimburse={(exp) => setReimburseExpense(exp)}
+            refreshKey={reimbursementsRefreshKey}
           />
         )}
 
@@ -227,8 +236,9 @@ const MainApp: React.FC = () => {
         expenseToEdit={expenseToEdit}
         categories={categories}
         onClose={() => setIsExpenseModalOpen(false)}
-        onSaved={() => {
-          showToast(expenseToEdit ? 'Draft updated successfully!' : 'Draft created successfully!');
+        onSaved={(message) => {
+          showToast(message || (expenseToEdit ? 'Draft updated successfully!' : 'Draft created successfully!'));
+          setExpensesRefreshKey((key) => key + 1);
           fetchInitialData();
         }}
       />
@@ -239,6 +249,8 @@ const MainApp: React.FC = () => {
         onClose={() => setIsDetailModalOpen(false)}
         onActionComplete={() => {
           showToast('Expense action processed successfully!');
+          setReviewQueueRefreshKey((key) => key + 1);
+          setReimbursementsRefreshKey((key) => key + 1);
           fetchInitialData();
         }}
         onEdit={handleOpenEdit}

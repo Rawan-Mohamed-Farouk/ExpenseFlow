@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Category, Expense } from '../types';
 import { api } from '../api/client';
-import { Sparkles, AlertCircle, Calendar, DollarSign, Tag, FileText } from 'lucide-react';
+import { Sparkles, AlertCircle, Calendar, DollarSign, Tag, FileText, Send } from 'lucide-react';
 
 interface ExpenseModalProps {
   isOpen: boolean;
   expenseToEdit?: Expense | null;
   categories: Category[];
   onClose: () => void;
-  onSaved: () => void;
+  onSaved: (message?: string) => void;
 }
 
 export const ExpenseModal: React.FC<ExpenseModalProps> = ({
@@ -91,38 +91,51 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSave = async (submitAfterSave = false) => {
     if (!validate()) return;
 
     setLoading(true);
     setServerError('');
 
     try {
+      let savedExpense: Expense;
       if (expenseToEdit) {
-        await api.updateExpense(expenseToEdit.id, {
+        const response = await api.updateExpense(expenseToEdit.id, {
           title: title.trim(),
           description: description.trim() || undefined,
           amount: parseFloat(amount),
           spent_date: spentDate,
           category_id: Number(categoryId),
         });
+        savedExpense = response.expense;
       } else {
-        await api.createExpense({
+        const response = await api.createExpense({
           title: title.trim(),
           description: description.trim() || undefined,
           amount: parseFloat(amount),
           spent_date: spentDate,
           category_id: Number(categoryId),
         });
+        savedExpense = response.expense;
       }
-      onSaved();
+
+      if (submitAfterSave) {
+        await api.submitExpense(savedExpense.id);
+        onSaved('Expense saved and submitted for review.');
+      } else {
+        onSaved(expenseToEdit ? 'Draft updated successfully!' : 'Draft created successfully!');
+      }
       onClose();
     } catch (err: any) {
       setServerError(err.message || 'Failed to save expense.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    void handleSave(false);
   };
 
   return (
@@ -303,9 +316,14 @@ export const ExpenseModal: React.FC<ExpenseModalProps> = ({
             <button type="button" onClick={onClose} className="btn btn-secondary" disabled={loading}>
               Cancel
             </button>
-            <button type="submit" className="btn btn-primary" disabled={loading}>
-              {loading ? 'Saving...' : expenseToEdit ? 'Update Draft' : 'Save as Draft'}
-            </button>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button type="submit" className="btn btn-secondary" disabled={loading}>
+                {loading ? 'Saving...' : expenseToEdit ? 'Update Draft' : 'Save as Draft'}
+              </button>
+              <button type="button" className="btn btn-primary" disabled={loading} onClick={() => void handleSave(true)}>
+                <Send size={16} /> {loading ? 'Submitting...' : 'Save & Submit'}
+              </button>
+            </div>
           </div>
         </form>
       </div>

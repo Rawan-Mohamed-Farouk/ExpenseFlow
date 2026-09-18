@@ -21,12 +21,14 @@ interface ReviewQueueViewProps {
   onOpenDetail: (id: number) => void;
   onOpenApprove: (expense: Expense) => void;
   onOpenReject: (expense: Expense) => void;
+  refreshKey?: number;
 }
 
 export const ReviewQueueView: React.FC<ReviewQueueViewProps> = ({
   onOpenDetail,
   onOpenApprove,
   onOpenReject,
+  refreshKey = 0,
 }) => {
   const { user } = useAuth();
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -46,7 +48,7 @@ export const ReviewQueueView: React.FC<ReviewQueueViewProps> = ({
 
   useEffect(() => {
     fetchQueue();
-  }, []);
+  }, [refreshKey]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
